@@ -1,0 +1,44 @@
+\begin{thebibliography}{8}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Conia et~al.(2020)Conia, Brignone, Zanfardino, and Navigli}]{srl}
+Simone Conia, Fabrizio Brignone, Davide Zanfardino, and Roberto Navigli. 2020.
+\newblock \href {https://doi.org/10.18653/v1/2020.emnlp-demos.11} {{I}n{V}e{R}o: Making semantic role labeling accessible with intelligible verbs and roles}.
+\newblock In \emph{Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations}, pages 77--84, Online. Association for Computational Linguistics.
+
+\bibitem[{Lacoste et~al.(2019)Lacoste, Luccioni, Schmidt, and Dandres}]{carbon}
+Alexandre Lacoste, Alexandra Luccioni, Victor Schmidt, and Thomas Dandres. 2019.
+\newblock \href {https://arxiv.org/abs/1910.09700} {Quantifying the carbon emissions of machine learning}.
+\newblock \emph{CoRR}, abs/1910.09700.
+
+\bibitem[{Lhoest et~al.(2021)Lhoest, Villanova~del Moral, von Platen, Wolf, Šaško, Jernite, Thakur, Tunstall, Patil, Drame, Chaumond, Plu, Davison, Brandeis, Sanh, Le~Scao, Canwen~Xu, Patry, Liu, McMillan-Major, Schmid, Gugger, Raw, Lesage, Lozhkov, Carrigan, Matussière, von Werra, Debut, Bekman, and Delangue}]{datasets}
+Quentin Lhoest, Albert Villanova~del Moral, Patrick von Platen, Thomas Wolf, Mario Šaško, Yacine Jernite, Abhishek Thakur, Lewis Tunstall, Suraj Patil, Mariama Drame, Julien Chaumond, Julien Plu, Joe Davison, Simon Brandeis, Victor Sanh, Teven Le~Scao, Kevin Canwen~Xu, Nicolas Patry, Steven Liu, Angelina McMillan-Major, Philipp Schmid, Sylvain Gugger, Nathan Raw, Sylvain Lesage, Anton Lozhkov, Matthew Carrigan, Théo Matussière, Leandro von Werra, Lysandre Debut, Stas Bekman, and Clément Delangue. 2021.
+\newblock \href {https://aclanthology.org/2021.emnlp-demo.21} {{Datasets: A Community Library for Natural Language Processing}}.
+\newblock In \emph{Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing: System Demonstrations}, pages 175--184. Association for Computational Linguistics.
+
+\bibitem[{Miller(1994)}]{wordnet}
+George~A. Miller. 1994.
+\newblock \href {https://aclanthology.org/H94-1111} {{W}ord{N}et: A lexical database for {E}nglish}.
+\newblock In \emph{{H}uman {L}anguage {T}echnology: Proceedings of a Workshop held at {P}lainsboro, {N}ew {J}ersey, {M}arch 8-11, 1994}.
+
+\bibitem[{Orlando et~al.(2021)Orlando, Conia, Brignone, Cecconi, and Navigli}]{wsd}
+Riccardo Orlando, Simone Conia, Fabrizio Brignone, Francesco Cecconi, and Roberto Navigli. 2021.
+\newblock \href {https://doi.org/10.18653/v1/2021.emnlp-demo.34} {{AMuSE-WSD}: {A}n all-in-one multilingual system for easy {W}ord {S}ense {D}isambiguation}.
+\newblock In \emph{Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing: System Demonstrations}, pages 298--307, Online and Punta Cana, Dominican Republic. Association for Computational Linguistics.
+
+\bibitem[{Sanh et~al.(2019)Sanh, Debut, Chaumond, and Wolf}]{distillbert}
+Victor Sanh, Lysandre Debut, Julien Chaumond, and Thomas Wolf. 2019.
+\newblock \href {https://arxiv.org/abs/1910.01108} {Distilbert, a distilled version of {BERT:} smaller, faster, cheaper and lighter}.
+\newblock \emph{CoRR}, abs/1910.01108.
+
+\bibitem[{Thorne et~al.(2018)Thorne, Vlachos, Christodoulopoulos, and Mittal}]{fever}
+James Thorne, Andreas Vlachos, Christos Christodoulopoulos, and Arpit Mittal. 2018.
+\newblock {FEVER}: a large-scale dataset for fact extraction and {VERification}.
+\newblock In \emph{NAACL-HLT}.
+
+\bibitem[{Wolf et~al.(2020)Wolf, Debut, Sanh, Chaumond, Delangue, Moi, Cistac, Ma, Jernite, Plu, Xu, Le~Scao, Gugger, Drame, Lhoest, and Rush}]{transformers}
+Thomas Wolf, Lysandre Debut, Victor Sanh, Julien Chaumond, Clement Delangue, Anthony Moi, Perric Cistac, Clara Ma, Yacine Jernite, Julien Plu, Canwen Xu, Teven Le~Scao, Sylvain Gugger, Mariama Drame, Quentin Lhoest, and Alexander~M. Rush. 2020.
+\newblock \href {https://www.aclweb.org/anthology/2020.emnlp-demos.6} {{Transformers: State-of-the-Art Natural Language Processing}}.
+\newblock pages 38--45. Association for Computational Linguistics.
+
+\end{thebibliography}

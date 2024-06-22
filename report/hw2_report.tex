@@ -1,0 +1,232 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[10pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% Better references
+\usepackage{cleveref}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+\usepackage{tabularx}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{HW2 Report}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+\author{Dario Loi ---
+  \texttt{loi.1940849@studenti.uniroma1.it} \\}
+
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{Dataset}
+For this task, we work with a subsampled version of the FEVER dataset \cite{fever}, which contains
+additional labels for word-sense disambiguation obtained through AMuSE-WSD \cite{wsd}, as well as
+Semantic Role Labels, obtained using InVeRo-SRL \cite{srl}.
+
+We have access to a default version of the dataset, split into train, validation, and test sets, as well as
+an adversarial test set, which is more challenging than the default test set.
+
+\section{Augmentation}
+
+One of the main tasks of the homework was to produce an augmented version of the dataset, we exploit
+the additional labels (WSD and SRL information) provided with the dataset together with some
+extrinsic knowledge of the english language to try and generate new samples while minimizing the
+risk of introducing noise.
+
+In addition to the provided annotations, we also make use of WordNet \cite{wordnet} to obtain synonym sets for each word in a sentence.
+
+We develop an object-oriented augmentation pipeline that chains a series of transforms in order to
+generate a set of samples from a single sample, the available transforms are:
+
+\begin{itemize}
+      \item \texttt{Synonimization}: This transform replaces a word in the sentence with a synonym of the same word, we use the WSD labels to ensure that the synonym is in the same sense as the original word. This transform can be applied to both the premise and the hypothesis.
+      \item \texttt{CopulaContradictor}: This transform replaces the copula in the sentence with its negation, while also negating the hypothesis (\texttt{ENTAILMENT} $\leftrightarrow$ \texttt{CONTRADICTION}).
+      \item \texttt{CopulaInverter}: This transform switches the subject and the object of the copula in the sentence, possibly turning the verb from passive to active form and vice versa, while preserving the logical relationship between the premise and the hypothesis.
+      \item \texttt{LengthFilter}: Since the WSD and SRL tokenizers operate slightly different (they mainly handle hyphenation of words differently, one splits along the hyphen and the other doesn't), we use this transform to filter out samples that have a different number of tokens in the premise and the hypothesis. This allows us to easily propagate changes from the WSD tokens to the SRL tokens and back.
+\end{itemize}
+
+Each of these transforms can be composed in a dynamic pipeline\footnote{We assume that a \texttt{LengthFilter} is required as the first step of any pipeline, else the pipeline will not work as expected.}, and the pipeline can be applied to a dataset to generate new samples. The transforms are parametrized by a given probability, which is used to decide whether to apply the transform to a given sample or not.
+
+
+\texttt{Synonimization} also has the possibility to provide an upper bound on the number of synonyms to consider for each word, this is useful to avoid generating too many samples from a single sample, keeping the dataset's size manageable.
+
+We avoid the use of antonyms and hypernyms/hyponyms, as they tend to introduce noise in the dataset and are more likely to generate samples that are not coherent with the original sample. One clear example of this happening is when transforming adjectives with antonyms, we do not know if this will lead to a \texttt{CONTRADICTION} or a \texttt{NEUTRAL} relationship between the premise and the hypothesis, and we are therefore unable to apply the correct label transformation automatically (without the use of some LLM model to predict the correct label).
+
+
+
+\subsection{Augmentation Parameters and Results}
+
+For the generation of the augmented dataset, we build a pipeline as described in \cref{tab:pipeline}, and apply it
+to a randomly sampled $80\%$ subset of the default training and validation splits, resulting in a roughly $2.5\times$ increase in the number of samples on each.
+
+
+\section{Models}
+
+In order to solve the task (Natural Language Inference), we use the \texttt{distillRoBERTa} model \cite{distillbert,carbon}, fine-tuned
+on the provided dataset, we use a \texttt{RoBERTa}-based model since the task is focused on \emph{robustness}, especially on the adversarial examples.
+
+We train two versions of the models, as requested by the assignment's extra task 2. The first one, which we refer to as the
+\textit{baseline} model, is trained on the original dataset. The second model is trained on a concatenation of the original dataset
+and the augmented dataset, we refer to this model as the \textit{augmented} model.
+
+We also use the \texttt{RoBERTa} tokenizer, which is provided by the \texttt{transformers} library, to automatically tokenize the input samples
+in a way that is conformant with the assignment's specifications.
+
+\section{Training and evaluation}
+
+We use the \texttt{transformers} \cite{transformers} and \texttt{datasets} \cite{datasets} libraries to train the models, this results in a simple
+but quite opaque training process, as the libraries abstract away most of the training loop.
+
+For both models, we use the same hyperparameters, which are listed in \cref{tab:hyperparameters}.
+
+The training process lasts around 1.5 hours/epoch on a Kaggle P100 GPU.
+
+\section{Results}
+
+We show the results for both models on both the base set and the adversarial set in \cref{tab:results_base,tab:results_adv}.
+Precision, Recall and F1-Score are aggregated over the three classes (\texttt{ENTAILMENT}, \texttt{NEUTRAL}, \texttt{CONTRADICTION}) with
+weighted averaging, to account for potential class imbalances.
+
+We notice a satisfying performance (around $70\%$ accuracy) on the base test set, while the performance on the adversarial test set is lower, as expected. Interestingly,
+the augmented model loses a bit of performance on the base test set, but proves to be more robust w.r.t the adversarial test set, with higher accuracy and F1-Score. The
+augmented model also seems to be more conservative in its predictions, as shown by the higher precision and lower recall.
+
+% TODO: comment on the results
+
+\section{Running the code}
+
+In order to allow for easy reproduction of the results, we provide a \texttt{requirements.txt} file that lists all the required dependencies,
+this can be installed with \texttt{pip install -r requirements.txt}.
+
+The code is separated into two notebooks (as requested by the assignment), one for the data augmentation and one for the model training. The augmentation
+notebook produces two dataset files (\texttt{augmented\_train.jsonl} and \texttt{augmented\_val.json}) that can be loaded by the training notebook.
+
+The training notebook trains the two models and saves them to disk, it then loads the weights and tokenizers from disk and evaluates the models on the
+two test sets (expecting that the augmented data is in the same directory as the notebook).
+
+
+\begin{table*}
+      \centering
+      \caption{Augmentation pipeline for dataset generation.}
+      \label{tab:pipeline}
+      \begin{tabularx}{0.70\linewidth}{|X|c|c|c|}
+            \hline
+            Transform                   & Probability & Synonyms & Applies to \\
+            \hline
+            \hline
+            \texttt{LengthFilter}       &             &          & Both       \\
+            \texttt{Synonimization}     & 0.100       & 2        & Premise    \\
+            \texttt{CopulaInverter}     & 0.500       &          & Hypothesis \\
+            \texttt{CopulaContradictor} & 0.500       &          & Hypothesis \\
+            \texttt{Synonimization}     & 0.125       & 2        & Hypothesis \\
+            \hline
+      \end{tabularx}
+\end{table*}
+
+
+\begin{table*}[h]
+      \centering
+      \caption{Hyperparameters} \label{tab:hyperparameters}
+      \begin{tabularx}{0.4\linewidth}{|X|c|}
+            \hline
+            \textbf{Parameter}      & \textbf{Value} \\
+            \hline
+            \hline
+            \texttt{batch\_size}    & 32             \\
+            \texttt{learning\_rate} & 1e-4           \\
+            \texttt{num\_epochs}    & 2              \\
+            \texttt{warmup\_steps}  & 500            \\
+            \texttt{weight\_decay}  & 1e-3           \\
+            \texttt{seed}           & 42             \\
+            \hline
+      \end{tabularx}
+\end{table*}
+
+\begin{table*}[h]
+      \centering
+      \caption{Results on the base test set} \label{tab:results_base}
+      \begin{tabularx}{0.65\linewidth}{|X|c|c|c|c|}
+            \hline
+            \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
+            \hline
+            \hline
+            Baseline       & 0.704             & 0.699              & 0.704           & 0.694       \\
+            Augmented      & 0.683             & 0.681              & 0.683           & 0.672       \\
+            \hline
+      \end{tabularx}
+\end{table*}
+
+\begin{table*}[h]
+      \centering
+      \caption{Results on the adversarial test set} \label{tab:results_adv}
+      \begin{tabularx}{0.65\linewidth}{|X|c|c|c|c|}
+            \hline
+            \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
+            \hline
+            \hline
+            Baseline       & 0.496             & 0.511              & 0.496           & 0.495       \\
+            Augmented      & 0.519             & 0.542              & 0.519           & 0.522       \\
+            \hline
+      \end{tabularx}
+\end{table*}
+
+\clearpage
+
+\bibliography{custom}
+
+\end{document}

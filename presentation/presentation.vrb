@@ -1,0 +1,19 @@
+\frametitle{Desired Format... Again}
+The output from our distractor generation process on the previous sample is as follows:
+
+  \begin{figure}[H]
+    \centering
+    \begin{lstlisting}[language=json, escapeinside = {(*@}{@*)}, caption={Sample 27 with generated distractors.}]
+  {
+    "id": "ITA-emoji-train-00000027",
+    "sentence": "... il rumore del mare \ufe0f #28Settembre <URL>",
+    "choices": [
+        "red_heart",
+        "two_hearts",
+        "rose",
+        "kiss_mark"
+    ],
+    "label": 0
+  }
+  \end{lstlisting}
+  \end{figure}

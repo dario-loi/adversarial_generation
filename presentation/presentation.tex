@@ -1,0 +1,219 @@
+\documentclass[english, xcolor={table,usenames}]{beamer}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenx}
+\usepackage[T1]{fontenc}      % Font encoding
+\usepackage{palatino}          % lmodern font, correctly copyable characters in pdf
+\usepackage{hyperref}         % Hyperlinks
+\usepackage{amsmath}          % Math
+\usepackage{amssymb}          % Math symbols
+\usepackage{mathtools}        % Math tools
+\usepackage{siunitx}          % SI units
+\usepackage{microtype}        % Microtypography
+\usepackage{bookmark}
+\usepackage{subfigure}
+\usepackage{tikz}
+\usepackage{chngcntr}
+\usepackage{ragged2e}
+\counterwithin{subfigure}{figure}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage[binary-units]{siunitx}
+\usepackage{tabularx}
+\usepackage{booktabs}         % Tables
+\usepackage{float}
+\usepackage{listings}
+\usepackage{bera}
+
+%%%% COMPILE WITH LATEXMK %%%%
+
+\usetheme[
+  bullet=circle,                  % Use circles instead of squares for bullets
+  titleline=false,                % Show a line below the frame
+  alternativetitlepage=true,      % Use the fancy title
+  titlepagelogo=logo-sapienza,    % Logo for the first slide
+  watermark=watermark-diag,       % Watermark used in every slide
+  watermarkheight=20px,           % Desired height of the watermark
+  watermarkheightmult=6,          % Watermark image is actually x times bigger
+  displayauthoronfooter=true,     % Display author name in the footer
+]{Roma}
+\watermarkoff%
+\author{\textbf{Dario Loi} --- \textbf{1940849}}
+
+\title{Multi-Lingual Natural Language Processing}
+\subtitle{Homeworks Report}
+\institute{M.Sc. in AI \& Robotics, \\ Sapienza, University of Rome.}
+\date{A. Y. 2023--2024}
+
+% Cover future items, do not cover past items
+
+\setbeamercovered{transparent=20}
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+\lstdefinelanguage{json}{
+    basicstyle=\tiny\normalfont\ttfamily,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=true,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{background},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Homework 1-A}
+
+\subsection{Introduction}
+\begin{frame}{Tasks}
+  For the first homework, I was assigned \alert{two} tasks:
+
+  \begin{enumerate}
+    \item WiC-ITA: Detect whether two italian words in two \alert{different} sentences are used with the \alert{same} meaning.
+    \item ITAmoji: Predict which emoji was used in a given italian tweet.
+  \end{enumerate}
+
+  We will spend a few slides on each task.
+\end{frame}
+
+
+\begin{frame}[fragile]{WiC-ITA}
+  The first task involved the parsing of JSONL files containing the Word-in-Context-ITA dataset, an example of which is shown below:
+
+
+  \begin{figure}[H]
+    \centering
+    \begin{lstlisting}[language=json, escapeinside = {(*@}{@*)}, caption={Sample 23 from WiC-ITA \texttt{train.jsonl}.}]
+  {
+    "id": "lira.noun.15",
+    "lemma": "lira",
+    "sentence1": "In caso di inosservanza degli obblighi stabiliti dal comma 1 , si applica la sanzione amministrativa pecuniaria da lire dieci milioni a lire cento milioni .",
+    "sentence2": "Per le finalit(*@\`{a}@*) di cui all' Art. 1 , comma 2 , della legge regionale 26 aprile 1995 , n. 31 recante \" Norme in materia di musei degli Enti locali e di interesse locale \" (*@\`{e}@*) autorizzata per l' esercizio finanziario 2000 la spesa di lire 200.000.000 .",
+    "start1": 115,
+    "end1": 119,
+    "start2": 230,
+    "end2": 234,
+    "label": 1
+  }
+  \end{lstlisting}
+  \end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]{Desired Format}
+
+  The samples were rewritten for use by an LLM, as shown below:
+
+
+  \begin{figure}[H]
+    \centering
+    \begin{lstlisting}[language=json, escapeinside = {(*@}{@*)}, caption={Same sample with required changes.}]
+  {
+    "id": "lira.noun.15",
+    "lemma": "lira",
+    "sentence1": "In caso di inosservanza degli obblighi stabiliti dal comma 1 , si applica la sanzione amministrativa pecuniaria da lire dieci milioni a lire cento milioni .",
+      "sentence2": "Per le finalit(*@\`{a}@*) di cui all' Art. 1 , comma 2 , della legge regionale 26 aprile 1995 , n. 31 recante \" Norme in materia di musei degli Enti locali e di interesse locale \" (*@\`{e}@*) autorizzata per l' esercizio finanziario 2000 la spesa di lire 200.000.000 .",
+    "start1": 115,
+    "end1": 119,
+    "start2": 230,
+    "end2": 234,
+    "choices": [
+      "DIVERSO",
+      "UGUALE"
+    ],
+    "label": 1
+  }
+\end{lstlisting}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{ITAmoji}
+  The second task also involved manipulation of JSONL files, a typical sample of ITAmoji is shown below:
+
+  \begin{figure}[H]
+    \centering
+    \begin{lstlisting}[language=json, escapeinside = {(*@}{@*)}, caption={Sample 27 from \texttt{ITAmoji\_2018\_TRAINdataset\_v1.ANON.list}.}]
+  {
+    "uid": "447352763",
+    "text_no_emoji": "... il rumore del mare \ufe0f #28Settembre <URL>",
+    "created_at": "Thu Sep 28 15:32:06 +0000 2017",
+    "label": "red_heart",
+    "tid": "913426094002458626"
+  }
+  \end{lstlisting}
+  \end{figure}
+
+  For this task, we also have to add \alert{distractors}, that is, plausible alternatives to the correct label.
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Desired Format... Again}
+  The output from our distractor generation process on the previous sample is as follows:
+
+  \begin{figure}[H]
+    \centering
+    \begin{lstlisting}[language=json, escapeinside = {(*@}{@*)}, caption={Sample 27 with generated distractors.}]
+  {
+    "id": "ITA-emoji-train-00000027",
+    "sentence": "... il rumore del mare \ufe0f #28Settembre <URL>",
+    "choices": [
+        "red_heart",
+        "two_hearts",
+        "rose",
+        "kiss_mark"
+    ],
+    "label": 0
+  }
+  \end{lstlisting}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Distractor Clusters} % ["red_heart", "two_hearts", "blue_heart", "rose", "kiss_mark"],
+  To generate distractors, we used a hand-crafted list of \alert{semantic clusters}, which we define as
+  a set of emoji that are semantically related. For example, the cluster \texttt{love} contains the
+  emojis \texttt{red\_heart}, \texttt{two\_hearts}, \texttt{blue\_heart}, \texttt{rose}, and \texttt{kiss\_mark}.
+
+  When augmenting a sample, we select a cluster in which the correct label is present, and then randomly
+  select three other labels from the same cluster. This way, we ensure that the distractors are
+  capable to confuse the model.
+\end{frame}
+
+\begin{frame}{Distractor Sampling}
+  To obtain a set of distractors from an ITAmoji sample, we follow this process:
+
+  \begin{itemize}
+    \item<1-> Randomly sample a cluster from the list of clusters that contain the correct emoji.
+    \item<2-> Randomly sample three other emojis from the same cluster.
+    \item<4-> Return the new sample with the correct label and the three distractors.
+  \end{itemize}
+\end{frame}
+
+\section{Homework 1-B}
+
+\end{document}
