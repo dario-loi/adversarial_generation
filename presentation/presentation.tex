@@ -199,9 +199,6 @@
   a set of emoji that are semantically related. For example, the cluster \texttt{love} contains the
   emojis \texttt{red\_heart}, \texttt{two\_hearts}, \texttt{blue\_heart}, \texttt{rose}, and \texttt{kiss\_mark}.
 
-  When augmenting a sample, we select a cluster in which the correct label is present, and then randomly
-  select three other labels from the same cluster. This way, we ensure that the distractors are
-  capable to confuse the model.
 \end{frame}
 
 \begin{frame}{Distractor Sampling}
@@ -236,12 +233,12 @@
   e' diverso (0) o lo stesso (1) nelle due frasi.
   Adesso elenchero una serie di esempi, per l'ultimo esempio dovrai completare la classificazione.
   Fai attenzione a rispondere solo con 0 se la scelta e' "DIVERSO" 
-  o 0 se la scelta e' "UGUALE", non scrivere altro. 
+  o 1 se la scelta e' "UGUALE", non scrivere altro. 
   
   Parola: RE
   Frase 1: "Carlo magno fu incoronato re dei romani ad aquisgrana"
   Frase 2: "La scala maggiore di re ha due alterazioni, fa e do"
-  Risposta corretta: 1
+  Risposta corretta: 0
   
   Parola: ARCO
   Frase 1: "L'arco di trionfo e' uno dei monumenti più famosi di parigi"
@@ -304,7 +301,7 @@
   The models we trained were:
 
   \begin{enumerate}
-    \item<1-> A näive classifier that always predicts the majority class.
+    \item<1-> A naïve classifier that always predicts the majority class.
     \item<2-> A Logistic Regression model that operates on Word2Vec embeddings.
     \item<3-> An LSTM model that automatically learns embeddings.
   \end{enumerate}
@@ -312,9 +309,9 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Näive Classifier}
+  \frametitle{Naïve Classifier}
 
-  The näive classifier always predicted the \alert{non-hateful} label, and achieved
+  The naïve classifier always predicted the \alert{non-hateful} label, and achieved
   an accuracy of $0.638$ on the news dataset and $0.508$ on the tweets dataset.
 
   We naturally achieved \alert{perfect} precision, with a recall equal to that
@@ -504,6 +501,14 @@
   It appears that our augmentation strategies \alert{improved} the robustness of the model
   to adversarial data, however, we lost a bit of performance on the base test set. As our
   task is to improve the model's generality, we consider this a \alert{success}.
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{The End!}
+
+  \centering
+  \Huge{\alert{Thank you for your attention!}}
 
 \end{frame}
 
